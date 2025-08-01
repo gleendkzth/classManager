@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <windows.h>
+#include <limits>
 
 using namespace std;
 
@@ -39,70 +40,148 @@ void registrarUsuario(const string& usuario, const string& clave) {
 void registrarNota(const std::string& usuarioActivo) {
     if (usuarioActivo.empty()) return;
 
-    std::string cursos[] = {"DESARROLLO FRONT END", "BASE DE DATOS", "DESARROLLO DE APLICACIONES DE ESCRITORIO", "ALGORITMOS Y PROGRAMACIÓN DE COMPUTADORAS", "INGLES"};
-    
-    std::cout << "\n--- REGISTRAR NOTA ---\n";
+    std::string cursos[] = {
+        "DESARROLLO FRONT END",
+        "BASE DE DATOS",
+        "DESARROLLO DE APLICACIONES DE ESCRITORIO",
+        "ALGORITMOS Y PROGRAMACIÓN DE COMPUTADORAS",
+        "INGLES"
+    };
+
+    limpiarPantalla();
+    std::cout << "===============================\n";
+    std::cout << "       REGISTRO DE NOTAS       \n";
+    std::cout << "===============================\n";
+    std::cout << "Seleccione una Unidad Didáctica:\n\n";
+
     for (int i = 0; i < 5; ++i) {
-        std::cout << i + 1 << ". " << cursos[i] << "\n";
+        std::cout << "  " << (i + 1) << ". " << cursos[i] << "\n";
     }
 
     int opcion;
-    std::cout << "Seleccione una Unidad Didactica: ";
+    std::cout << "\nOpción (1-5): ";
     std::cin >> opcion;
 
-    if (opcion < 1 || opcion > 5) return;
+    if (opcion < 1 || opcion > 5) {
+        std::cout << "\nOpción no válida. Retornando al menú...\n";
+        Sleep(1500);
+        return;
+    }
 
-    std::cin.ignore(); // limpiar el buffer por si acaso
+    std::cin.ignore(); // Limpiar buffer
+    std::string cursoSeleccionado = cursos[opcion - 1];
 
     std::ofstream archivo(usuarioActivo + "_notas.txt", std::ios::app);
 
-    std::string nota;
-    std::cout << "Ingrese las notas separadas, escriba 'fin' para terminar:\n";
+    std::cout << "\nIngrese las notas para '" << cursoSeleccionado << "'.\n";
+    std::cout << "Escriba una nota por línea. Escriba 'fin' para terminar:\n\n";
 
+    std::string entradaNota;
     while (true) {
-        std::getline(std::cin, nota);
-        if (nota == "fin") break;
-        archivo << cursos[opcion - 1] << ": " << nota << "\n";
+        std::cout << "Nota: ";
+        std::getline(std::cin, entradaNota);
+        if (entradaNota == "fin") break;
+
+        if (!entradaNota.empty())
+            archivo << cursoSeleccionado << ": " << entradaNota << "\n";
     }
 
-    std::cout << "Notas guardadas.\n";
+    std::cout << "\nNotas guardadas correctamente.\n";
+    Sleep(1500);
 }
+
 
 void mostrarNotas() {
-    ifstream archivo(usuarioActivo + "_notas.txt");
-    string linea;
-    cout << "Notas de " << usuarioActivo << ":\n";
+    limpiarPantalla();
+
+    std::ifstream archivo(usuarioActivo + "_notas.txt");
+    std::string linea;
+
+    std::cout << "===============================\n";
+    std::cout << "        NOTAS REGISTRADAS      \n";
+    std::cout << "===============================\n";
+    std::cout << "Usuario: " << usuarioActivo << "\n";
+    std::cout << "-------------------------------\n";
+
+    bool hayNotas = false;
     while (getline(archivo, linea)) {
-        cout << "- " << linea << endl;
+        if (!linea.empty()) {
+            std::cout << "• " << linea << "\n";
+            hayNotas = true;
+        }
     }
+
+    if (!hayNotas) {
+        std::cout << "No hay notas registradas aún.\n";
+    }
+
+    std::cout << "\nPresione Enter para volver al menú...";
+    std::cin.get(); // esperar Enter
 }
+
 
 void menuUsuario() {
     int opcion;
     do {
         limpiarPantalla();
+
+        // Encabezado tipo tarjeta limpia
         cout << "===============================\n";
-        cout << "    Bienvenido, " << usuarioActivo << "\n";
+        cout << "======== CLASS MANAGER ========\n";
         cout << "===============================\n";
-        cout << " \n";
-        cout << "1. Registrar Nota\n";
-        cout << "2. Ver Notas\n";
-        cout << "3. Cerrar Sesion\n";
-        cout << " \n";
-        cout << "===============================\n";
-        cout << "= Opcion: ";
-        cin >> opcion;
+        cout << "\n";
+        cout << "\nUsuario activo: " << usuarioActivo << "\n";
+        cout << "-------------------------------\n";
+        cout << " Menú Principal\n";
+        cout << "-------------------------------\n";
+        cout << "  1. Registrar Nota\n";
+        cout << "  2. Ver Notas\n";
+        cout << "  3. Editar Nota\n";
+        cout << "  4. Eliminar Nota\n";
+        cout << "  5. Ver Promedios\n";
+        cout << "  6. Exportar Notas\n";
+        cout << "  7. Cambiar Contraseña\n";
+        cout << "  8. Cerrar Sesión\n";
+        cout << "-------------------------------\n";
+        cout << "Seleccione una opción (1-8): ";
+
+        if (!(cin >> opcion)) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "\nEntrada inválida. Inténtelo nuevamente.\n";
+            Sleep(1500);
+            continue;
+        }
 
         limpiarPantalla();
 
-        if (opcion == 1) {
-            registrarNota(usuarioActivo);
-        } else if (opcion == 2) {
-            mostrarNotas();
+        switch (opcion) {
+            case 1:
+                registrarNota(usuarioActivo);
+                break;
+            case 2:
+                mostrarNotas();
+                break;
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+                cout << "\nEsta función está en desarrollo.\n";
+                break;
+            case 8:
+                cout << "\nCerrando sesión...\n";
+                Sleep(1000);
+                break;
+            default:
+                cout << "\nOpción no válida. Inténtelo nuevamente.\n";
+                Sleep(1500);
+                break;
         }
-        if (opcion != 3) Sleep(2000);
-    } while (opcion != 3);
+
+    } while (opcion != 8);
 }
+
 
 void menuLogin() {
     string usuario, clave;
@@ -111,7 +190,7 @@ void menuLogin() {
     do {
         limpiarPantalla();
         cout << "===============================\n";
-        cout << "======== MENU PRINCIPAL =======\n";
+        cout << "======== CLASS MANAGER ========\n";
         cout << "===============================\n";
         cout << "\n";
         cout << "1. Registrarse\n";
@@ -133,8 +212,13 @@ void menuLogin() {
             cout << "Usuario registrado correctamente.\n";
             Sleep(1500);
         } else if (opcion == 2) {
+            cout << "===============================\n";
+            cout << "======== CLASS MANAGER ========\n";
+            cout << "===============================\n";
+            cout << " \n";
             cout << "Usuario: ";
             cin >> usuario;
+            cout << "\n-------\n";
             cout << "Clave: ";
             cin >> clave;
             if (verificarLogin(usuario, clave)) {
