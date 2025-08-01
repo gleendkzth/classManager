@@ -1,21 +1,16 @@
-12
-15
-Matematica: 12 12 12 12 12
-INGLES: 12
-INGLES: 14
-INGLES: 15
-INGLES: 15
-INGLES: 13
-INGLES: 
-INGLES: 14
-INGLES: 14
-INGLES: 14
-INGLES: 14
-INGLES: 14
-INGLES: 1414
-INGLES: 14
-INGLES: 14
-INGLES: 1
-INGLES: 41
-INGLES: 4
-INGLES: 1 2 3 4 5 6
+DESARROLLO FRONT END | Indicador 2 | Nota 1: 2
+DESARROLLO FRONT END | Indicador 2 | Nota 2: 14
+DESARROLLO FRONT END | Indicador 2 | Nota 3: 14
+DESARROLLO FRONT END | Indicador 2 | Nota 4: 13
+DESARROLLO FRONT END | Indicador 2 | Nota 5: 13
+DESARROLLO FRONT END | Indicador 2 | Nota 6: 13
+DESARROLLO FRONT END | Indicador 2 | Nota 7: 14
+DESARROLLO FRONT END | Indicador 2 | Nota 8: 13
+BASE DE DATOS | Indicador de logro: 5 | Nota 1: 13
+BASE DE DATOS | Indicador de logro: 5 | Nota 2: 15
+BASE DE DATOS | Indicador de logro: 5 | Nota 3: 13
+BASE DE DATOS | Indicador de logro: 5 | Nota 4: 16
+BASE DE DATOS | Indicador de logro: 5 | Nota 5: 16
+BASE DE DATOS | Indicador de logro: 5 | Nota 6: 13
+BASE DE DATOS | Indicador de logro: 5 | Nota 7: 14
+BASE DE DATOS | Indicador de logro: 5 | Nota 8: 16

@@ -40,83 +40,107 @@ void registrarUsuario(const string& usuario, const string& clave) {
 void registrarNota(const std::string& usuarioActivo) {
     if (usuarioActivo.empty()) return;
 
-    std::string cursos[] = {
-        "DESARROLLO FRONT END",
-        "BASE DE DATOS",
-        "DESARROLLO DE APLICACIONES DE ESCRITORIO",
-        "ALGORITMOS Y PROGRAMACIÓN DE COMPUTADORAS",
-        "INGLES"
-    };
+    std::string cursos[] = {"DESARROLLO FRONT END", 
+                            "BASE DE DATOS", 
+                            "DESARROLLO DE APLICACIONES DE ESCRITORIO", 
+                            "ALGORITMOS Y PROGRAMACIÓN DE COMPUTADORAS", 
+                            "INGLÉS"};
 
-    limpiarPantalla();
-    std::cout << "===============================\n";
-    std::cout << "       REGISTRO DE NOTAS       \n";
-    std::cout << "===============================\n";
-    std::cout << "Seleccione una Unidad Didáctica:\n\n";
-
+    std::cout << "\n--- REGISTRAR NOTA ---\n";
     for (int i = 0; i < 5; ++i) {
-        std::cout << "  " << (i + 1) << ". " << cursos[i] << "\n";
+        std::cout << i + 1 << ". " << cursos[i] << "\n";
     }
 
-    int opcion;
-    std::cout << "\nOpción (1-5): ";
-    std::cin >> opcion;
+    int opcionCurso;
+    std::cout << "Seleccione el curso: ";
+    std::cin >> opcionCurso;
+    std::cin.ignore();
 
-    if (opcion < 1 || opcion > 5) {
-        std::cout << "\nOpción no válida. Retornando al menú...\n";
-        Sleep(1500);
+    if (opcionCurso < 1 || opcionCurso > 5) {
+        std::cout << "Curso inválido.\n";
         return;
     }
 
-    std::cin.ignore(); // Limpiar buffer
-    std::string cursoSeleccionado = cursos[opcion - 1];
+    int indicador;
+    std::cout << "Numero de Indicador de Logro (1-5): ";
+    std::cin >> indicador;
+    std::cin.ignore();
+
+    if (indicador < 1 || indicador > 5) {
+        std::cout << "Indicador de logro no valido.\n";
+        return;
+    }
 
     std::ofstream archivo(usuarioActivo + "_notas.txt", std::ios::app);
 
-    std::cout << "\nIngrese las notas para '" << cursoSeleccionado << "'.\n";
-    std::cout << "Escriba una nota por línea. Escriba 'fin' para terminar:\n\n";
+    std::string nota;
+    int contador = 0;
 
-    std::string entradaNota;
-    while (true) {
-        std::cout << "Nota: ";
-        std::getline(std::cin, entradaNota);
-        if (entradaNota == "fin") break;
-
-        if (!entradaNota.empty())
-            archivo << cursoSeleccionado << ": " << entradaNota << "\n";
+    std::cout << "\nIngrese las notas maximo 5. Escriba 'fin' para terminar:\n";
+    while (contador < 5) {
+        std::cout << "Nota " << contador + 1 << ": ";
+        std::getline(std::cin, nota);
+        if (nota == "fin") break;
+        if (!nota.empty()) {
+            archivo << cursos[opcionCurso - 1] 
+                    << " | Indicador de logro: " << indicador 
+                    << " | Nota " << contador + 1 
+                    << ": " << nota << "\n";
+            contador++;
+        }
     }
 
     std::cout << "\nNotas guardadas correctamente.\n";
-    Sleep(1500);
 }
 
 
+
 void mostrarNotas() {
-    limpiarPantalla();
+    std::string cursos[] = {"DESARROLLO FRONT END", 
+                            "BASE DE DATOS", 
+                            "DESARROLLO DE APLICACIONES DE ESCRITORIO", 
+                            "ALGORITMOS Y PROGRAMACIÓN DE COMPUTADORAS", 
+                            "INGLÉS"};
 
-    std::ifstream archivo(usuarioActivo + "_notas.txt");
-    std::string linea;
+    cout << "--- VER NOTAS POR CURSO ---\n";
+    for (int i = 0; i < 5; ++i) {
+        cout << i + 1 << ". " << cursos[i] << "\n";
+    }
 
-    std::cout << "===============================\n";
-    std::cout << "        NOTAS REGISTRADAS      \n";
-    std::cout << "===============================\n";
-    std::cout << "Usuario: " << usuarioActivo << "\n";
-    std::cout << "-------------------------------\n";
+    int opcionCurso;
+    cout << "Seleccione el curso: ";
+    cin >> opcionCurso;
+    cin.ignore();
+
+    if (opcionCurso < 1 || opcionCurso > 5) {
+        cout << "Curso invalido.\n";
+        return;
+    }
+
+    string cursoSeleccionado = cursos[opcionCurso - 1];
+
+    ifstream archivo(usuarioActivo + "_notas.txt");
+    string linea;
+
+    cout << "\n===============================\n";
+    cout << "Notas de " << usuarioActivo << " - " << "\n";
+    cout << "===============================\n";
 
     bool hayNotas = false;
     while (getline(archivo, linea)) {
-        if (!linea.empty()) {
-            std::cout << "• " << linea << "\n";
+        if (linea.find(cursoSeleccionado) != string::npos) {
+            cout << "- " << linea << endl;
             hayNotas = true;
         }
     }
 
     if (!hayNotas) {
-        std::cout << "No hay notas registradas aún.\n";
+        cout << "No hay notas registradas para este curso.\n";
     }
 
-    std::cout << "\nPresione Enter para volver al menú...";
-    std::cin.get(); // esperar Enter
+    cout << "\nPresiona enter para regresar...";
+    cin.ignore();
+    cin.get();
 }
 
 
@@ -129,10 +153,9 @@ void menuUsuario() {
         cout << "===============================\n";
         cout << "======== CLASS MANAGER ========\n";
         cout << "===============================\n";
-        cout << "\n";
-        cout << "\nUsuario activo: " << usuarioActivo << "\n";
+        cout << "\nUsuario: " << usuarioActivo << "\n";
         cout << "-------------------------------\n";
-        cout << " Menú Principal\n";
+        cout << "        Menu Principal\n";
         cout << "-------------------------------\n";
         cout << "  1. Registrar Nota\n";
         cout << "  2. Ver Notas\n";
@@ -140,7 +163,7 @@ void menuUsuario() {
         cout << "  4. Eliminar Nota\n";
         cout << "  5. Ver Promedios\n";
         cout << "  6. Exportar Notas\n";
-        cout << "  7. Cambiar Contraseña\n";
+        cout << "  7. Cambiar Contrasena\n";
         cout << "  8. Cerrar Sesión\n";
         cout << "-------------------------------\n";
         cout << "Seleccione una opción (1-8): ";
@@ -148,7 +171,7 @@ void menuUsuario() {
         if (!(cin >> opcion)) {
             cin.clear();
             cin.ignore(1000, '\n');
-            cout << "\nEntrada inválida. Inténtelo nuevamente.\n";
+            cout << "\nEntrada invalida. Inténtelo nuevamente.\n";
             Sleep(1500);
             continue;
         }
