@@ -2,8 +2,10 @@
 #include <windows.h>
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <limits>
+#include <vector>
+#include <algorithm>
+#include <ctime>
+#include <random> // Para std::shuffle
 #include <iomanip>
 #include <conio.h>
 #include <sstream>
@@ -639,184 +641,300 @@ void editarNota() {
 int mejorPuntaje = 0;
 string mejorJugador = "";
 
+// Función para mostrar una barra de progreso
+void mostrarBarraProgreso(int actual, int total, int ancho = 30) {
+    float progreso = (float)actual / total;
+    int pos = (int)(ancho * progreso);
+    
+    cout << "\n " << BOLD << "Progreso: [" << RESET;
+    for (int i = 0; i < ancho; ++i) {
+        if (i < pos) cout << GREEN << "█" << RESET;
+        else cout << " ";
+    }
+    cout << BOLD << "] " << (int)(progreso * 100.0) << "%" << RESET << "\n\n";
+}
+
+// Función para mostrar un mensaje con un marco decorativo
+void mostrarMensaje(const string& mensaje, const string& color = "") {
+    string linea(mensaje.length() + 4, '=');
+    cout << "\n " << BOLD << color << " ╔" << linea << "╗" << RESET << "\n";
+    cout << " " << BOLD << color << " ║  " << mensaje << "  ║" << RESET << "\n";
+    cout << " " << BOLD << color << " ╚" << linea << "╝" << RESET << "\n\n";
+}
+
 void juegoPreguntas() {
     limpiarPantalla();
-    mostrarEncabezado("🧠 BUG O VERDAD 🎮");
-    
+    mostrarEncabezado("🎮 JUEGO DE PREGUNTAS DE PROGRAMACIÓN 🎮");
+
     // Definir preguntas y respuestas
     struct Pregunta {
         string texto;
-        char correcta; // 'A' o 'B'
-        string opcionA;
-        string opcionB;
+        int correcta; // 1 o 2
+        string opcion1;
+        string opcion2;
+        string explicacion; // Explicación de la respuesta correcta
     };
-    
+
     vector<Pregunta> preguntasFaciles = {
-        {"¿Qué hace 'cout' en C++?", 'A', 
-         "Muestra datos por pantalla", 
-         "Captura datos del teclado"},
-        
-        {"¿Cuál es el tipo de dato correcto para letras en C++?", 'A', 
-         "char", 
-         "string"},
-        
-        {"¿El ciclo 'for' puede ejecutarse 0 veces?", 'A', 
-         "Sí", 
-         "No"},
-        
-        {"¿HTML es un lenguaje de programación?", 'B', 
-         "Sí", 
-         "No"},
-        
-        {"¿Un archivo con extensión .cpp pertenece a C++?", 'A', 
-         "Sí", 
-         "No"}
+        {"¿Qué hace 'cout' en C++?", 1,
+         "Muestra datos por pantalla",
+         "Captura datos del teclado",
+         "'cout' se usa con '<<' para mostrar datos en la consola."},
+
+        {"¿Cuál es el tipo de dato correcto para letras en C++?", 1,
+         "char",
+         "string",
+         "'char' es para caracteres individuales, 'string' es para cadenas."},
+
+        {"¿El ciclo 'for' puede ejecutarse 0 veces?", 1,
+         "Sí",
+         "No",
+         "Sí, si la condición inicial es falsa, el bucle no se ejecutará."},
+
+        {"¿HTML es un lenguaje de programación?", 2,
+         "Sí",
+         "No",
+         "HTML es un lenguaje de marcado, no de programación."},
+
+        {"¿Un archivo con extensión .cpp pertenece a C++?", 1,
+         "Sí",
+         "No",
+         ".cpp es la extensión estándar para archivos fuente de C++."}
     };
-    
+
     vector<Pregunta> preguntasDificiles = {
-        {"¿Qué hace el operador '&' en C++?", 'A', 
-         "Obtiene la dirección de una variable", 
-         "Declara una variable global"},
-        
-        {"¿Cuál es la principal ventaja de usar punteros?", 'A', 
-         "Acceder y manipular memoria directamente", 
-         "Evitar usar bucles"},
-        
-        {"¿Qué significa STL en C++?", 'B', 
-         "Standard Template Language", 
-         "Standard Template Library"},
-        
-        {"¿Puedes sobrecargar el operador '==' en C++?", 'A', 
-         "Sí", 
-         "No"},
-        
-        {"¿Qué hace `delete` en C++?", 'A', 
-         "Libera memoria dinámica", 
-         "Cierra archivos abiertos"}
+        {"¿Qué hace el operador '&' en C++?", 1,
+         "Obtiene la dirección de una variable",
+         "Declara una variable global",
+         "El operador '&' se usa para obtener la dirección de memoria de una variable."},
+
+        {"¿Cuál es la principal ventaja de usar punteros?", 1,
+         "Acceder y manipular memoria directamente",
+         "Evitar usar bucles",
+         "Los punteros permiten manejar memoria dinámica y estructuras de datos complejas."},
+
+        {"¿Qué significa STL en C++?", 2,
+         "Standard Template Language",
+         "Standard Template Library",
+         "STL es la biblioteca estándar de plantillas de C++."},
+
+        {"¿Puedes sobrecargar el operador '==' en C++?", 1,
+         "Sí",
+         "No",
+         "Sí, la sobrecarga de operadores es una característica poderosa de C++."},
+
+        {"¿Qué hace 'delete' en C++?", 1,
+         "Libera memoria dinámica",
+         "Cierra archivos abiertos",
+         "'delete' libera memoria asignada con 'new' para evitar fugas de memoria."}
     };
-    
+
     int aciertos = 0;
     vector<Pregunta> preguntasActuales;
     string dificultad;
-    
-    // Mostrar menú de dificultad
-    limpiarPantalla();
-    mostrarEncabezado("SELECCIONA DIFICULTAD");
-    
-    cout << "\n " << BOLD << CYAN << "¡Hola, " << usuarioActivo << "!" << RESET << "\n\n";
-    cout << " " << BOLD << "Mejor puntuación: " << RESET << mejorPuntaje << " aciertos";
-    if (!mejorJugador.empty()) {
-        cout << " (por " << mejorJugador << ")";
-    }
-    cout << "\n " << string(60, '=') << "\n\n";
-    
-    cout << " " << BOLD << "Elige la dificultad:" << RESET << "\n\n";
-    cout << " " << BOLD << "[1]" << RESET << " 🧾 Normal\n";
-    cout << " " << BOLD << "[2]" << RESET << " 🧠 Difícil\n";
-    cout << " " << BOLD << "[0]" << RESET << " 🔙 Volver al menú\n\n";
-    
-    int opcionDificultad;
-    cout << " " << BOLD << "👉 Tu elección: " << RESET;
-    cin >> opcionDificultad;
-    cin.ignore();
-    
-    if (opcionDificultad == 0) return;
-    
-    if (opcionDificultad == 1) {
-        preguntasActuales = preguntasFaciles;
-        dificultad = "NORMAL";
-    } else if (opcionDificultad == 2) {
-        preguntasActuales = preguntasDificiles;
-        dificultad = "DIFÍCIL";
-    } else {
-        cout << "\n " << RED << "Opción inválida. Volviendo al menú..." << RESET;
-        Sleep(1500);
-        return;
-    }
-    
-    // Mezclar preguntas
-    srand(time(0));
-    for (int i = 0; i < 3; i++) {
+    int tiempoRespuesta = 0;
+    time_t inicio, fin;
+
+    // Pantalla de selección de dificultad
+    while (true) {
         limpiarPantalla();
-        mostrarEncabezado("PREGUNTA #" + to_string(i+1) + " - " + dificultad);
+        mostrarEncabezado("🎮 SELECCIONA DIFICULTAD 🎮");
+
+        cout << "\n " << BOLD << CYAN << "¡Hola, " << usuarioActivo << "!" << RESET << "\n\n";
         
-        // Seleccionar pregunta aleatoria
-        int idx = rand() % preguntasActuales.size();
-        Pregunta p = preguntasActuales[idx];
+        // Mostrar mejor puntuación con estilo
+        cout << " " << BOLD << "🏆 Mejor puntuación: " << RESET << BOLD << mejorPuntaje << " aciertos" << RESET;
+        if (!mejorJugador.empty()) {
+            cout << " (por " << BOLD << MAGENTA << mejorJugador << RESET << ")";
+        }
+        cout << "\n " << string(60, '=') << "\n\n";
+
+        // Opciones de dificultad con mejor formato
+        cout << " " << BOLD << "Elige la dificultad:" << RESET << "\n\n";
+        cout << " " << BOLD << "[1] " << RESET << "Normal   " << CYAN << "(Fácil para empezar)" << RESET << "\n";
+        cout << " " << BOLD << "[2] " << RESET << "Difícil  " << MAGENTA << "(Para expertos en C++)" << RESET << "\n";
+        cout << " " << BOLD << "[0] " << RESET << "Volver al menú principal\n\n";
+
+        int opcionDificultad;
+        cout << " " << BOLD << "👉 Tu elección: " << RESET;
+        cin >> opcionDificultad;
+        cin.ignore();
+
+        if (opcionDificultad == 0) return;
+
+        if (opcionDificultad == 1) {
+            preguntasActuales = preguntasFaciles;
+            dificultad = "NORMAL";
+            break;
+        } else if (opcionDificultad == 2) {
+            preguntasActuales = preguntasDificiles;
+            dificultad = "DIFÍCIL";
+            break;
+        } else {
+            mostrarMensaje("❌ Opción inválida. Intenta de nuevo.", RED);
+            Sleep(1000);
+        }
+    }
+
+    // Mezclar preguntas
+    srand((unsigned int)time(0));
+    auto rng = std::default_random_engine {};
+    std::shuffle(std::begin(preguntasActuales), std::end(preguntasActuales), rng);
+    
+    // Tomar solo 5 preguntas
+    if (preguntasActuales.size() > 5) {
+        preguntasActuales.resize(5);
+    }
+
+    // Juego principal
+    for (size_t i = 0; i < preguntasActuales.size(); i++) {
+        limpiarPantalla();
+        mostrarEncabezado("❓ PREGUNTA #" + to_string(i + 1) + " - " + dificultad + " ❓");
         
-        // Mostrar pregunta
-        cout << "\n " << BOLD << MAGENTA << p.texto << RESET << "\n\n";
-        cout << " " << BOLD << "[A] " << RESET << p.opcionA << "\n";
-        cout << " " << BOLD << "[B] " << RESET << p.opcionB << "\n\n";
+        // Mostrar barra de progreso
+        mostrarBarraProgreso(i, preguntasActuales.size());
         
-        // Obtener respuesta
-        char respuesta;
-        bool respuestaValida = false;
+        Pregunta& p = preguntasActuales[i];
         
-        while (!respuestaValida) {
-            cout << " " << BOLD << "👉 Tu respuesta (A/B): " << RESET;
-            cin >> respuesta;
-            cin.ignore();
+        // Mostrar pregunta con formato
+        cout << "\n " << BOLD << BLUE << "❓ Pregunta:" << RESET << "\n";
+        cout << " " << BOLD << p.texto << RESET << "\n\n";
+        
+        // Mostrar opciones con mejor formato
+        cout << " " << BOLD << CYAN << "🔹 Opciones:" << RESET << "\n";
+        cout << " " << BOLD << "[1] " << RESET << p.opcion1 << "\n";
+        cout << " " << BOLD << "[2] " << RESET << p.opcion2 << "\n\n";
+
+        // Obtener respuesta del usuario
+        time(&inicio);
+        int respuesta = 0;
+        while (respuesta != 1 && respuesta != 2) {
+            cout << " " << BOLD << "👉 Tu respuesta (1/2): " << RESET;
+            string input;
+            getline(cin, input);
             
-            respuesta = toupper(respuesta);
-            if (respuesta == 'A' || respuesta == 'B') {
-                respuestaValida = true;
+            // Validar entrada
+            if (input == "1" || input == "2") {
+                respuesta = stoi(input);
             } else {
-                cout << " " << RED << "Por favor, ingresa 'A' o 'B'." << RESET << "\n";
+                cout << " " << RED << "⚠️ Por favor, ingresa solo 1 o 2." << RESET << "\n";
             }
         }
-        
+        time(&fin);
+        tiempoRespuesta += difftime(fin, inicio);
+
         // Verificar respuesta
+        limpiarPantalla();
+        mostrarEncabezado(respuesta == p.correcta ? "✅ RESPUESTA CORRECTA" : "❌ RESPUESTA INCORRECTA");
+        
+        cout << "\n " << BOLD << BLUE << "❓ Pregunta:" << RESET << "\n";
+        cout << " " << p.texto << "\n\n";
+        
+        cout << " " << BOLD << (respuesta == p.correcta ? GREEN : RED) << 
+             (respuesta == p.correcta ? "✅ Tu respuesta fue correcta!" : "❌ Tu respuesta fue incorrecta") << RESET << "\n";
+        
+        cout << "\n " << BOLD << "💡 Respuesta correcta: " << RESET << "[" << p.correcta << "] " << 
+             (p.correcta == 1 ? p.opcion1 : p.opcion2) << "\n";
+        
+        cout << "\n " << BOLD << "📚 Explicación: " << RESET << p.explicacion << "\n\n";
+        
         if (respuesta == p.correcta) {
-            cout << "\n " << GREEN << "✅ ¡Correcto!" << RESET << "\n";
             aciertos++;
+            cout << " " << GREEN << "✨ ¡Bien hecho! " << RESET << "Llevas " << BOLD << aciertos << " aciertos" << RESET << "\n";
         } else {
-            cout << "\n " << RED << "❌ Incorrecto. La respuesta era: [" << p.correcta << "]" << RESET << "\n";
+            cout << " " << RED << "¡No te rindas! " << RESET << "Llevas " << BOLD << aciertos << " aciertos" << RESET << "\n";
         }
+
+        // Mostrar progreso
+        mostrarBarraProgreso(i + 1, preguntasActuales.size());
         
-        cout << "\n " << YELLOW << "Aciertos: " << aciertos << " de " << (i+1) << RESET << "\n";
-        
-        if (i < 2) {
-            cout << "\n " << YELLOW << "Presiona Enter para la siguiente pregunta..." << RESET;
-            cin.get();
+        if (i < preguntasActuales.size() - 1) {
+            cout << "\n " << YELLOW << "⏳ Tiempo en responder: " << (int)difftime(fin, inicio) << " segundos" << RESET << "\n";
+            cout << "\n " << YELLOW << "🔄 Presiona Enter para la siguiente pregunta..." << RESET;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        } else {
+            cout << "\n " << BOLD << MAGENTA << "🎉 ¡Última pregunta completada!" << RESET << "\n";
+            cout << " " << YELLOW << "⏱️  Tiempo promedio por respuesta: " << (tiempoRespuesta / preguntasActuales.size()) << " segundos" << RESET << "\n";
+            cout << "\n " << YELLOW << "🏁 Presiona Enter para ver tus resultados finales..." << RESET;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
-        
-        // Eliminar la pregunta para no repetir
-        preguntasActuales.erase(preguntasActuales.begin() + idx);
+    }
+
+    // Pantalla de resultados finales
+    limpiarPantalla();
+    string emojiResultado;
+    string mensajeResultado;
+    
+    if (aciertos == preguntasActuales.size()) {
+        emojiResultado = "🏆";
+        mensajeResultado = "¡PERFECTO! Eres un experto en programación";
+    } else if (aciertos >= preguntasActuales.size() * 0.7) {
+        emojiResultado = "🎯";
+        mensajeResultado = "¡Excelente trabajo! Sigue así";
+    } else if (aciertos >= preguntasActuales.size() * 0.4) {
+        emojiResultado = "👍";
+        mensajeResultado = "Buen intento, sigue practicando";
+    } else {
+        emojiResultado = "💪";
+        mensajeResultado = "No te rindas, la práctica hace al maestro";
     }
     
-    // Mostrar resultado final
-    limpiarPantalla();
-    mostrarEncabezado("🏆 RESULTADO FINAL 🏆");
+    mostrarEncabezado(emojiResultado + " RESULTADO FINAL " + emojiResultado);
     
-    cout << "\n " << BOLD << "Jugador: " << RESET << usuarioActivo << "\n";
-    cout << " " << BOLD << "Dificultad: " << RESET << dificultad << "\n";
-    cout << " " << BOLD << "Aciertos: " << RESET << aciertos << " de 3\n\n";
+    cout << "\n " << BOLD << "👤 Jugador: " << RESET << MAGENTA << usuarioActivo << RESET << "\n";
+    cout << " " << BOLD << "📊 Dificultad: " << RESET << (dificultad == "NORMAL" ? CYAN : MAGENTA) << dificultad << RESET << "\n";
+    cout << " " << BOLD << "✅ Aciertos: " << RESET << BOLD << 
+         (aciertos == preguntasActuales.size() ? GREEN : (aciertos >= preguntasActuales.size() / 2 ? YELLOW : RED)) << 
+         aciertos << " de " << preguntasActuales.size() << RESET << "\n";
+    cout << " " << BOLD << "⏱️  Tiempo promedio: " << RESET << (tiempoRespuesta / preguntasActuales.size()) << " segundos por respuesta\n";
     
-    // Actualizar mejor puntuación si es necesario
+    // Mostrar barra de progreso final
+    cout << "\n " << BOLD << "Progreso: " << RESET << "\n ";
+    float porcentaje = (float)aciertos / preguntasActuales.size();
+    int anchoBarra = 40;
+    int pos = (int)(anchoBarra * porcentaje);
+    
+    cout << "[";
+    for (int i = 0; i < anchoBarra; i++) {
+        if (i < pos) {
+            if (porcentaje > 0.7) cout << GREEN << "█" << RESET;
+            else if (porcentaje > 0.4) cout << YELLOW << "█" << RESET;
+            else cout << RED << "█" << RESET;
+        } else {
+            cout << " ";
+        }
+    }
+    cout << "] " << (int)(porcentaje * 100) << "%\n\n";
+    
+    // Actualizar mejor puntuación si corresponde
     if (aciertos > mejorPuntaje) {
         mejorPuntaje = aciertos;
         mejorJugador = usuarioActivo;
         cout << " " << BOLD << GREEN << "🎉 ¡Nueva mejor puntuación! 🎉" << RESET << "\n\n";
     }
     
-    // Mostrar mensaje según puntuación
-    if (aciertos == 3) {
-        cout << " " << BOLD << GREEN << "🔥 ¡Perfecto! Eres un crack de la programación!" << RESET << "\n";
-    } else if (aciertos >= 2) {
-        cout << " " << BOLD << YELLOW << "👍 ¡Buen trabajo! Sigue practicando." << RESET << "\n";
-    } else if (aciertos == 1) {
-        cout << " " << BOLD << YELLOW << "🤔 No está mal, pero puedes hacerlo mejor." << RESET << "\n";
+    // Mostrar mensaje final
+    cout << "\n " << BOLD << (porcentaje > 0.7 ? GREEN : (porcentaje > 0.4 ? YELLOW : RED)) << 
+         emojiResultado << " " << mensajeResultado << " " << emojiResultado << RESET << "\n";
+
+    // Mostrar sugerencia basada en el rendimiento
+    cout << "\n " << BOLD << "💡 Consejo: " << RESET;
+    if (porcentaje == 1.0) {
+        cout << "¡Eres increíble! ¿Por qué no intentas la dificultad máxima?" << "\n";
+    } else if (porcentaje > 0.7) {
+        cout << "Estás muy cerca de la perfección. ¡Solo un poco más!" << "\n";
+    } else if (porcentaje > 0.4) {
+        cout << "Sigue practicando los conceptos básicos para mejorar." << "\n";
     } else {
-        cout << " " << BOLD << RED << "💀 El compilador te odia. ¡Sigue intentándolo!" << RESET << "\n";
+        cout << "No te desanimes, revisa los conceptos básicos y vuelve a intentarlo." << "\n";
     }
-    
+
     cout << "\n " << string(60, '=') << "\n\n";
     cout << " " << YELLOW << "Presiona cualquier tecla para volver al menú..." << RESET;
     _getch();
 }
 
-void mostrarOpcionMenu
+void mostrarOpcionMenu(const string& texto, int numero, bool seleccionada) {
     string margen = string(20, ' ');
     if (seleccionada) {
         cout << BOLD << GREEN << "  -> " << margen << "|" << numero << "| " << texto << "\n" << RESET;
