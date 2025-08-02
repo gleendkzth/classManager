@@ -1,11 +1,3 @@
-DESARROLLO FRONT END | Indicador 2 | Nota 1: 2
-DESARROLLO FRONT END | Indicador 2 | Nota 2: 14
-DESARROLLO FRONT END | Indicador 2 | Nota 3: 14
-DESARROLLO FRONT END | Indicador 2 | Nota 4: 13
-DESARROLLO FRONT END | Indicador 2 | Nota 5: 13
-DESARROLLO FRONT END | Indicador 2 | Nota 6: 13
-DESARROLLO FRONT END | Indicador 2 | Nota 7: 14
-DESARROLLO FRONT END | Indicador 2 | Nota 8: 13
 BASE DE DATOS | Indicador de logro: 5 | Nota 1: 13
 BASE DE DATOS | Indicador de logro: 5 | Nota 2: 15
 BASE DE DATOS | Indicador de logro: 5 | Nota 3: 13
@@ -14,3 +6,33 @@ BASE DE DATOS | Indicador de logro: 5 | Nota 5: 16
 BASE DE DATOS | Indicador de logro: 5 | Nota 6: 13
 BASE DE DATOS | Indicador de logro: 5 | Nota 7: 14
 BASE DE DATOS | Indicador de logro: 5 | Nota 8: 16
+DESARROLLO FRONT END | Indicador de logro: 1 | Nota 1: 12
+DESARROLLO FRONT END | Indicador de logro: 1 | Nota 2: 15
+DESARROLLO FRONT END | Indicador de logro: 1 | Nota 3: 16
+DESARROLLO FRONT END | Indicador de logro: 1 | Nota 4: 16
+DESARROLLO FRONT END | Indicador de logro: 1 | Nota 5: 14
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 1: 1
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 2: 15
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 3: 1
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 4: 19
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 5: 19
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 1: 12
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 2: 15
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 3: 16
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 4: 14
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 5: 13
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 1: 13
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 2: 1
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 3: 14
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 4: 15
+DESARROLLO FRONT END | Indicador de logro: 2 | Nota 5: 14
+DESARROLLO DE APLICACIONES DE ESCRITORIO | Indicador de logro: 1 | Nota 1: 15
+DESARROLLO DE APLICACIONES DE ESCRITORIO | Indicador de logro: 1 | Nota 2: 14
+DESARROLLO DE APLICACIONES DE ESCRITORIO | Indicador de logro: 1 | Nota 3: 16
+DESARROLLO DE APLICACIONES DE ESCRITORIO | Indicador de logro: 1 | Nota 4: 14
+DESARROLLO DE APLICACIONES DE ESCRITORIO | Indicador de logro: 1 | Nota 5: 15
+INGLES | Indicador de logro: 1 | Nota 1: 14
+INGLES | Indicador de logro: 1 | Nota 2: 15
+INGLES | Indicador de logro: 1 | Nota 3: 17
+INGLES | Indicador de logro: 1 | Nota 4: 12
+INGLES | Indicador de logro: 1 | Nota 5: 15

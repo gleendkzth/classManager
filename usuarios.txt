@@ -1,2 +1,2 @@
-admin,1234
-user,1234
+admin,12345678
+user,1234admin,123
