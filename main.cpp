@@ -676,58 +676,204 @@ void juegoPreguntas() {
     };
 
     vector<Pregunta> preguntasFaciles = {
-        {"¿Qué hace 'cout' en C++?", 1,
-         "Muestra datos por pantalla",
-         "Captura datos del teclado",
-         "'cout' se usa con '<<' para mostrar datos en la consola."},
-
-        {"¿Cuál es el tipo de dato correcto para letras en C++?", 1,
-         "char",
-         "string",
-         "'char' es para caracteres individuales, 'string' es para cadenas."},
-
-        {"¿El ciclo 'for' puede ejecutarse 0 veces?", 1,
+        {"¿Qué operador se usa para la asignación en C++?", 1,
+         "=",
+         "==",
+         "'=' asigna valor, '==' compara igualdad."},
+    
+        {"¿Qué palabra clave define una constante en C++?", 1,
+         "const",
+         "define",
+         "'const' se usa para definir constantes."},
+    
+        {"¿Qué ciclo es mejor si conoces cuántas veces repetir?", 1,
+         "for",
+         "while",
+         "'for' es ideal cuando conoces el número de repeticiones."},
+    
+        {"¿Qué indica 'endl' en C++?", 1,
+         "Salto de línea",
+         "Fin de programa",
+         "'endl' inserta un salto de línea en la consola."},
+    
+        {"¿Qué simboliza '//' en C++?", 1,
+         "Comentario de una línea",
+         "División",
+         "'//' se usa para comentarios de una sola línea."},
+    
+        {"¿Qué hace 'cin'?", 1,
+         "Lee datos del teclado",
+         "Muestra texto",
+         "'cin' captura entrada desde el teclado."},
+    
+        {"¿Qué operador se usa para módulo en C++?", 1,
+         "%",
+         "&",
+         "'%' devuelve el resto de una división."},
+    
+        {"¿Se puede usar 'else' sin 'if'?", 2,
          "Sí",
          "No",
-         "Sí, si la condición inicial es falsa, el bucle no se ejecutará."},
-
-        {"¿HTML es un lenguaje de programación?", 2,
+         "'else' siempre debe ir después de un 'if'."},
+    
+        {"¿Cuál es el tipo de dato para números con decimales?", 1,
+         "float",
+         "int",
+         "'float' permite almacenar números decimales."},
+    
+        {"¿Qué tipo de dato usar para verdadero/falso?", 1,
+         "bool",
+         "int",
+         "'bool' almacena valores booleanos: true o false."},
+    
+        {"¿Cómo termina una instrucción en C++?", 1,
+         "Con punto y coma (;)",
+         "Con dos puntos (:)",
+         "Cada instrucción en C++ debe terminar con ';'."},
+    
+        {"¿Es 'main' obligatorio en un programa C++?", 1,
          "Sí",
          "No",
-         "HTML es un lenguaje de marcado, no de programación."},
-
-        {"¿Un archivo con extensión .cpp pertenece a C++?", 1,
+         "Todo programa C++ comienza en la función 'main'."},
+    
+        {"¿Cuál es el operador de incremento?", 1,
+         "++",
+         "+=",
+         "'++' incrementa una variable en 1."},
+    
+        {"¿Qué hace '#include'?", 1,
+         "Incluye librerías",
+         "Crea funciones",
+         "'#include' inserta librerías o archivos al código."},
+    
+        {"¿'int' puede almacenar decimales?", 2,
          "Sí",
          "No",
-         ".cpp es la extensión estándar para archivos fuente de C++."}
-    };
-
-    vector<Pregunta> preguntasDificiles = {
-        {"¿Qué hace el operador '&' en C++?", 1,
-         "Obtiene la dirección de una variable",
-         "Declara una variable global",
-         "El operador '&' se usa para obtener la dirección de memoria de una variable."},
-
-        {"¿Cuál es la principal ventaja de usar punteros?", 1,
-         "Acceder y manipular memoria directamente",
-         "Evitar usar bucles",
-         "Los punteros permiten manejar memoria dinámica y estructuras de datos complejas."},
-
-        {"¿Qué significa STL en C++?", 2,
-         "Standard Template Language",
-         "Standard Template Library",
-         "STL es la biblioteca estándar de plantillas de C++."},
-
-        {"¿Puedes sobrecargar el operador '==' en C++?", 1,
+         "'int' almacena enteros. Para decimales usa 'float' o 'double'."},
+    
+        {"¿Se puede anidar estructuras 'if'?", 1,
          "Sí",
          "No",
-         "Sí, la sobrecarga de operadores es una característica poderosa de C++."},
+         "Puedes tener 'if' dentro de otros 'if'."},
+    
+        {"¿Cuál es el operador lógico AND?", 1,
+         "&&",
+         "&",
+         "'&&' evalúa dos condiciones booleanas."},
+    
+        {"¿Una variable puede comenzar con número?", 2,
+         "Sí",
+         "No",
+         "Una variable no puede iniciar con un número."},
+    
+        {"¿Qué estructura permite múltiples opciones?", 1,
+         "switch",
+         "if",
+         "'switch' facilita elegir entre muchas opciones."},
+    
+        {"¿Qué se necesita para usar 'cout'?", 1,
+         "iostream",
+         "stdio.h",
+         "Para usar 'cout' debes incluir <iostream>."},
+        };
 
-        {"¿Qué hace 'delete' en C++?", 1,
-         "Libera memoria dinámica",
-         "Cierra archivos abiertos",
-         "'delete' libera memoria asignada con 'new' para evitar fugas de memoria."}
-    };
+        vector<Pregunta> preguntasDificiles = {
+            {"¿Qué significa que C++ es un lenguaje compilado?", 1,
+             "1. Requiere ser convertido a código máquina",
+             "2. Se ejecuta línea por línea",
+             "Un compilador traduce todo el programa antes de ejecutarlo."},
+        
+            {"¿Qué hace una función recursiva?", 1,
+             "1. Se llama a sí misma",
+             "2. Se ejecuta una vez",
+             "La recursividad implica que una función se invoque a sí misma."},
+        
+            {"¿Qué operador se sobrecarga para acceso tipo array?", 1,
+             "1. []",
+             "2. ()",
+             "El operador [] puede sobrecargarse para acceder como si fuera arreglo."},
+        
+            {"¿Qué palabra clave impide sobrescribir una función virtual?", 1,
+             "1. final",
+             "2. override",
+             "final evita que las clases hijas sobrescriban una función virtual."},
+        
+            {"¿Qué es el puntero 'this'?", 1,
+             "1. Apunta al objeto actual",
+             "2. Apunta a la clase base",
+             "'this' representa al objeto que llama un método."},
+        
+            {"¿Qué permite la sobrecarga de constructores?", 1,
+             "1. Varios constructores con diferentes parámetros",
+             "2. Constructores duplicados en varias clases",
+             "Permite crear objetos con diferentes formas de inicialización."},
+        
+            {"¿Para qué se usa 'friend' en C++?", 1,
+             "1. Dar acceso a funciones externas a miembros privados",
+             "2. Evitar el uso de punteros",
+             "Permite que funciones o clases accedan a miembros privados."},
+        
+            {"¿Qué tipo de herencia permite heredar de varias clases?", 1,
+             "1. Herencia múltiple",
+             "2. Herencia virtual",
+             "La herencia múltiple combina miembros de varias clases base."},
+        
+            {"¿Dónde deben definirse las plantillas?", 1,
+             "1. En el archivo de cabecera (.h)",
+             "2. En un archivo .cpp",
+             "Deben definirse completamente en encabezados por cómo funciona la compilación."},
+        
+            {"¿Qué contiene la clase std::map?", 1,
+             "1. Elementos ordenados por clave",
+             "2. Elementos desordenados",
+             "std::map mantiene los elementos ordenados por clave automáticamente."},
+        
+            {"¿Qué es una función virtual pura?", 1,
+             "1. Una función sin implementación en la clase base",
+             "2. Una función privada",
+             "Se define con '= 0' y obliga a implementarla en las clases derivadas."},
+        
+            {"¿Qué es un 'segmentation fault'?", 1,
+             "1. Acceso a memoria no válida",
+             "2. División entre cero",
+             "Se produce al acceder a memoria prohibida o inexistente."},
+        
+            {"¿Para qué se usa el operador '->'?", 1,
+             "1. Acceder a miembros de un objeto desde un puntero",
+             "2. Crear una referencia",
+             "Se usa con punteros a objetos para acceder a sus miembros."},
+        
+            {"¿Diferencia entre 'delete' y 'delete[]'?", 1,
+             "1. delete[] libera arreglos dinámicos",
+             "2. No hay diferencia",
+             "delete[] debe usarse para arreglos creados con new[]."},
+        
+            {"¿Qué pasa si no defines un destructor virtual en una clase base?", 1,
+             "1. Puede causar fugas de memoria",
+             "2. No se puede crear el objeto",
+             "Al liberar un objeto derivado desde un puntero base, solo se llama al destructor base."},
+        
+            {"¿Qué memoria usa 'new'?", 1,
+             "1. Heap",
+             "2. Stack",
+             "new reserva memoria dinámica en el heap."},
+        
+            {"¿Qué es una clase abstracta?", 1,
+             "1. Clase con al menos una función virtual pura",
+             "2. Clase sin métodos",
+             "No se puede instanciar, sirve como base para herencia."},
+        
+            {"¿Qué permite el polimorfismo?", 1,
+             "1. Tratar objetos derivados como base",
+             "2. Crear múltiples objetos iguales",
+             "Permite invocar métodos en objetos derivados a través de punteros base."},
+        
+            {"¿Qué es 'linkage externo'?", 1,
+             "1. Compartir variables o funciones entre archivos fuente",
+             "2. Hacer variables privadas",
+             "Se logra con la palabra clave extern."}
+        };
+        
 
     int aciertos = 0;
     vector<Pregunta> preguntasActuales;
@@ -756,7 +902,7 @@ void juegoPreguntas() {
         cout << " " << BOLD << "[0] " << RESET << "Volver al menú principal\n\n";
 
         int opcionDificultad;
-        cout << " " << BOLD << "👉 Tu elección: " << RESET;
+        cout << " " << BOLD << "Tu elección: " << RESET;
         cin >> opcionDificultad;
         cin.ignore();
 
@@ -771,7 +917,7 @@ void juegoPreguntas() {
             dificultad = "DIFÍCIL";
             break;
         } else {
-            mostrarMensaje("❌ Opción inválida. Intenta de nuevo.", RED);
+            mostrarMensaje("Opción inválida. Intenta de nuevo.", RED);
             Sleep(1000);
         }
     }
@@ -789,7 +935,7 @@ void juegoPreguntas() {
     // Juego principal
     for (size_t i = 0; i < preguntasActuales.size(); i++) {
         limpiarPantalla();
-        mostrarEncabezado("❓ PREGUNTA #" + to_string(i + 1) + " - " + dificultad + " ❓");
+        mostrarEncabezado("PREGUNTA #" + to_string(i + 1) + " - " + dificultad + " ❓");
         
         // Mostrar barra de progreso
         mostrarBarraProgreso(i, preguntasActuales.size());
@@ -797,11 +943,11 @@ void juegoPreguntas() {
         Pregunta& p = preguntasActuales[i];
         
         // Mostrar pregunta con formato
-        cout << "\n " << BOLD << BLUE << "❓ Pregunta:" << RESET << "\n";
+        cout << "\n " << BOLD << BLUE << "Pregunta:" << RESET << "\n";
         cout << " " << BOLD << p.texto << RESET << "\n\n";
         
         // Mostrar opciones con mejor formato
-        cout << " " << BOLD << CYAN << "🔹 Opciones:" << RESET << "\n";
+        cout << " " << BOLD << CYAN << "Opciones:" << RESET << "\n";
         cout << " " << BOLD << "[1] " << RESET << p.opcion1 << "\n";
         cout << " " << BOLD << "[2] " << RESET << p.opcion2 << "\n\n";
 
@@ -809,7 +955,7 @@ void juegoPreguntas() {
         time(&inicio);
         int respuesta = 0;
         while (respuesta != 1 && respuesta != 2) {
-            cout << " " << BOLD << "👉 Tu respuesta (1/2): " << RESET;
+            cout << " " << BOLD << "Tu respuesta (1/2): " << RESET;
             string input;
             getline(cin, input);
             
@@ -817,7 +963,7 @@ void juegoPreguntas() {
             if (input == "1" || input == "2") {
                 respuesta = stoi(input);
             } else {
-                cout << " " << RED << "⚠️ Por favor, ingresa solo 1 o 2." << RESET << "\n";
+                cout << " " << RED << "Por favor, ingresa solo 1 o 2." << RESET << "\n";
             }
         }
         time(&fin);
@@ -825,22 +971,22 @@ void juegoPreguntas() {
 
         // Verificar respuesta
         limpiarPantalla();
-        mostrarEncabezado(respuesta == p.correcta ? "✅ RESPUESTA CORRECTA" : "❌ RESPUESTA INCORRECTA");
+        mostrarEncabezado(respuesta == p.correcta ? "RESPUESTA CORRECTA" : "RESPUESTA INCORRECTA");
         
-        cout << "\n " << BOLD << BLUE << "❓ Pregunta:" << RESET << "\n";
+        cout << "\n " << BOLD << BLUE << "Pregunta:" << RESET << "\n";
         cout << " " << p.texto << "\n\n";
         
         cout << " " << BOLD << (respuesta == p.correcta ? GREEN : RED) << 
-             (respuesta == p.correcta ? "✅ Tu respuesta fue correcta!" : "❌ Tu respuesta fue incorrecta") << RESET << "\n";
+             (respuesta == p.correcta ? "Tu respuesta fue correcta!" : "Tu respuesta fue incorrecta") << RESET << "\n";
         
-        cout << "\n " << BOLD << "💡 Respuesta correcta: " << RESET << "[" << p.correcta << "] " << 
+        cout << "\n " << BOLD << "Respuesta correcta: " << RESET << "[" << p.correcta << "] " << 
              (p.correcta == 1 ? p.opcion1 : p.opcion2) << "\n";
         
-        cout << "\n " << BOLD << "📚 Explicación: " << RESET << p.explicacion << "\n\n";
+        cout << "\n " << BOLD << "Explicación: " << RESET << p.explicacion << "\n\n";
         
         if (respuesta == p.correcta) {
             aciertos++;
-            cout << " " << GREEN << "✨ ¡Bien hecho! " << RESET << "Llevas " << BOLD << aciertos << " aciertos" << RESET << "\n";
+            cout << " " << GREEN << "¡Bien hecho! " << RESET << "Llevas " << BOLD << aciertos << " aciertos" << RESET << "\n";
         } else {
             cout << " " << RED << "¡No te rindas! " << RESET << "Llevas " << BOLD << aciertos << " aciertos" << RESET << "\n";
         }
@@ -849,44 +995,39 @@ void juegoPreguntas() {
         mostrarBarraProgreso(i + 1, preguntasActuales.size());
         
         if (i < preguntasActuales.size() - 1) {
-            cout << "\n " << YELLOW << "⏳ Tiempo en responder: " << (int)difftime(fin, inicio) << " segundos" << RESET << "\n";
-            cout << "\n " << YELLOW << "🔄 Presiona Enter para la siguiente pregunta..." << RESET;
+            cout << "\n " << YELLOW << "Tiempo en responder: " << (int)difftime(fin, inicio) << " segundos" << RESET << "\n";
+            cout << "\n " << YELLOW << "Presiona Enter para la siguiente pregunta..." << RESET;
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         } else {
             cout << "\n " << BOLD << MAGENTA << "🎉 ¡Última pregunta completada!" << RESET << "\n";
-            cout << " " << YELLOW << "⏱️  Tiempo promedio por respuesta: " << (tiempoRespuesta / preguntasActuales.size()) << " segundos" << RESET << "\n";
-            cout << "\n " << YELLOW << "🏁 Presiona Enter para ver tus resultados finales..." << RESET;
+            cout << " " << YELLOW << "Tiempo promedio por respuesta: " << (tiempoRespuesta / preguntasActuales.size()) << " segundos" << RESET << "\n";
+            cout << "\n " << YELLOW << "Presiona Enter para ver tus resultados finales..." << RESET;
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
     }
 
     // Pantalla de resultados finales
     limpiarPantalla();
-    string emojiResultado;
     string mensajeResultado;
     
     if (aciertos == preguntasActuales.size()) {
-        emojiResultado = "🏆";
         mensajeResultado = "¡PERFECTO! Eres un experto en programación";
     } else if (aciertos >= preguntasActuales.size() * 0.7) {
-        emojiResultado = "🎯";
         mensajeResultado = "¡Excelente trabajo! Sigue así";
     } else if (aciertos >= preguntasActuales.size() * 0.4) {
-        emojiResultado = "👍";
         mensajeResultado = "Buen intento, sigue practicando";
     } else {
-        emojiResultado = "💪";
         mensajeResultado = "No te rindas, la práctica hace al maestro";
     }
     
-    mostrarEncabezado(emojiResultado + " RESULTADO FINAL " + emojiResultado);
+    mostrarEncabezado(" RESULTADO FINAL " );
     
-    cout << "\n " << BOLD << "👤 Jugador: " << RESET << MAGENTA << usuarioActivo << RESET << "\n";
-    cout << " " << BOLD << "📊 Dificultad: " << RESET << (dificultad == "NORMAL" ? CYAN : MAGENTA) << dificultad << RESET << "\n";
-    cout << " " << BOLD << "✅ Aciertos: " << RESET << BOLD << 
+    cout << "\n " << BOLD << "Jugador: " << RESET << MAGENTA << usuarioActivo << RESET << "\n";
+    cout << " " << BOLD << "Dificultad: " << RESET << (dificultad == "NORMAL" ? CYAN : MAGENTA) << dificultad << RESET << "\n";
+    cout << " " << BOLD << "Aciertos: " << RESET << BOLD << 
          (aciertos == preguntasActuales.size() ? GREEN : (aciertos >= preguntasActuales.size() / 2 ? YELLOW : RED)) << 
          aciertos << " de " << preguntasActuales.size() << RESET << "\n";
-    cout << " " << BOLD << "⏱️  Tiempo promedio: " << RESET << (tiempoRespuesta / preguntasActuales.size()) << " segundos por respuesta\n";
+    cout << " " << BOLD << "Tiempo promedio: " << RESET << (tiempoRespuesta / preguntasActuales.size()) << " segundos por respuesta\n";
     
     // Mostrar barra de progreso final
     cout << "\n " << BOLD << "Progreso: " << RESET << "\n ";
@@ -910,15 +1051,15 @@ void juegoPreguntas() {
     if (aciertos > mejorPuntaje) {
         mejorPuntaje = aciertos;
         mejorJugador = usuarioActivo;
-        cout << " " << BOLD << GREEN << "🎉 ¡Nueva mejor puntuación! 🎉" << RESET << "\n\n";
+        cout << " " << BOLD << GREEN << " ¡Nueva mejor puntuación! " << RESET << "\n\n";
     }
     
     // Mostrar mensaje final
     cout << "\n " << BOLD << (porcentaje > 0.7 ? GREEN : (porcentaje > 0.4 ? YELLOW : RED)) << 
-         emojiResultado << " " << mensajeResultado << " " << emojiResultado << RESET << "\n";
+         " " << mensajeResultado << " "<< RESET << "\n";
 
     // Mostrar sugerencia basada en el rendimiento
-    cout << "\n " << BOLD << "💡 Consejo: " << RESET;
+    cout << "\n " << BOLD << "Consejo: " << RESET;
     if (porcentaje == 1.0) {
         cout << "¡Eres increíble! ¿Por qué no intentas la dificultad máxima?" << "\n";
     } else if (porcentaje > 0.7) {
