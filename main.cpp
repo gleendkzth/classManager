@@ -1,131 +1,176 @@
+// define la versión mínima de windows necesaria
 #define _WIN32_WINNT 0x0501
-#include <windows.h>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <algorithm>
-#include <ctime>
-#include <random> // Para std::shuffle
-#include <iomanip>
-#include <conio.h>
-#include <sstream>
-#include <locale>
-#include <codecvt>
-#include <vector>
 
+// incluye las bibliotecas necesarias
+#include <windows.h>        // para funciones de windows
+#include <iostream>         // para entrada/salida estándar
+#include <fstream>          // para manejo de archivos
+#include <vector>           // para usar vectores
+#include <algorithm>        // para funciones de ordenamiento
+#include <ctime>            // para manejo de fechas y horas
+#include <random>           // para generación de números aleatorios
+#include <iomanip>          // para formateo de salida
+#include <conio.h>          // para entrada de teclado
+#include <sstream>          // para manipulación de strings
+#include <locale>           // para configuraciones regionales
+#include <codecvt>          // para conversión de caracteres
+
+// usa el espacio de nombres estándar para evitar escribir std::
 using namespace std;
 
-// Constantes para colores de consola
-const string RESET = "\033[0m";
-const string BOLD = "\033[1m";
-const string RED = "\033[31m";
-const string GREEN = "\033[32m";
-const string YELLOW = "\033[33m";
-const string BLUE = "\033[34m";
-const string MAGENTA = "\033[35m";
-const string CYAN = "\033[36m";
-const string BG_WHITE = "\033[47m";
-const string BG_BLUE = "\033[44m";
+// constantes para colores de consola
+const string RESET = "\033[0m";    // restablece el formato
+const string BOLD = "\033[1m";     // texto en negrita
+const string RED = "\033[31m";     // texto rojo
+const string GREEN = "\033[32m";   // texto verde
+const string YELLOW = "\033[33m";  // texto amarillo
+const string BLUE = "\033[34m";    // texto azul
+const string MAGENTA = "\033[35m"; // texto magenta
+const string CYAN = "\033[36m";    // texto cyan
+const string BG_WHITE = "\033[47m"; // fondo blanco
+const string BG_BLUE = "\033[44m";  // fondo azul
 
+// variable global para almacenar el usuario activo
 string usuarioActivo;
+
+// variables globales para el juego de preguntas
+int mejorPuntaje = 0;
+string mejorJugador = "";
+
+// función para mostrar la barra de progreso
+void mostrarBarraProgreso(int actual, int total);
+
+// ancho fijo para la consola
 const int CONSOLE_WIDTH = 80;
 
-// Función para centrar texto
+// centra un texto en la consola según el ancho definido
+// recibe el texto a centrar
+// devuelve el texto con espacios a la izquierda para centrarlo
 string centrarTexto(const string& texto) {
+    // si el texto es más largo que el ancho, lo devuelve sin cambios
     if (texto.length() >= CONSOLE_WIDTH) return texto;
+    // calcula los espacios necesarios a la izquierda
     int espacios = (CONSOLE_WIDTH - texto.length()) / 2;
+    // devuelve el texto centrado
     return string(espacios, ' ') + texto;
 }
 
-// Función para mostrar el encabezado
+// muestra el encabezado de la aplicación con un título opcional
+// recibe el título de la sección actual (opcional)
 void mostrarEncabezado(const string& titulo = "") {
+    // obtiene el manejador de la consola
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(hConsole, &csbi);
     
-    // Mover el cursor al inicio
+    // mueve el cursor a la esquina superior izquierda
     COORD coord = {0, 0};
     SetConsoleCursorPosition(hConsole, coord);
     
-    // Guardar la posición actual del cursor
+    // guarda la posición actual del cursor
     COORD cursorPos = csbi.dwCursorPosition;
     
-    // Mover el cursor al inicio
-    SetConsoleCursorPosition(hConsole, {0, 0});
-    
-    // Dibujar el encabezado
+    // dibuja el encabezado decorativo
     cout << BOLD << string(CONSOLE_WIDTH, ' ') << RESET << "\n";
     cout << BOLD << centrarTexto("=======================================") << string(CONSOLE_WIDTH - 38, ' ') << RESET << "\n";
-    cout << BOLD << centrarTexto("          " + string("CLASS MANAGER", 0, 12) + "           ") << string(CONSOLE_WIDTH - 38, ' ') << RESET << "\n";
+    cout << BOLD << centrarTexto("          " + string("ADMINISTRADOR DE CURSOS - APSTI", 0, 31) + "           ") << string(CONSOLE_WIDTH - 38, ' ') << RESET << "\n";
     cout << BOLD << centrarTexto("=======================================") << string(CONSOLE_WIDTH - 38, ' ') << RESET << "\n";
     
-    // Mostrar título de sección si se proporciona
+    // muestra el título de la sección si se proporcionó
     if (!titulo.empty()) {
         cout << "\n" << BOLD << CYAN << centrarTexto("» " + titulo + " «") << RESET << "\n\n";
     } else {
         cout << "\n";
     }
     
-    // Mover el cursor a la posición debajo del encabezado
+    // posiciona el cursor debajo del encabezado
     COORD newPos = {0, 5};
     SetConsoleCursorPosition(hConsole, newPos);
 }
 
-// Función para limpiar pantalla
+// limpia la pantalla de la consola y opcionalmente muestra el encabezado
+// recibe un booleano que indica si se debe mostrar el encabezado
 void limpiarPantalla(bool mostrarHeader = true) {
+    // obtiene el manejador de la consola
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     
-    // Obtener el tamaño de la ventana de la consola
+    // obtiene información del búfer de pantalla
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(hConsole, &csbi);
     
-    // Obtener el tamaño de la ventana
+    // configura las coordenadas iniciales
     COORD coordScreen = {0, 0};
     DWORD cCharsWritten;
     DWORD dwConSize;
     
-    // Calcular el número de celdas en la ventana actual
+    // calcula el tamaño total de la ventana
     dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
     
-    // Llenar toda la pantalla con espacios
+    // llena la pantalla con espacios en blanco
     FillConsoleOutputCharacter(hConsole, ' ', dwConSize, coordScreen, &cCharsWritten);
     
-    // Restaurar los atributos de color
+    // restaura los colores originales
     FillConsoleOutputAttribute(hConsole, csbi.wAttributes, dwConSize, coordScreen, &cCharsWritten);
     
-    // Mover el cursor a la posición inicial
+    // mueve el cursor a la posición inicial
     SetConsoleCursorPosition(hConsole, coordScreen);
     
-    // Mostrar el encabezado si se solicita
+    // muestra el encabezado si se solicitó
     if (mostrarHeader) {
         mostrarEncabezado();
     }
 }
 
+// verifica las credenciales de inicio de sesión
+// recibe el nombre de usuario y la contraseña
+// devuelve true si las credenciales son válidas, false en caso contrario
 bool verificarLogin(const string& usuario, const string& clave) {
+    // abre el archivo de usuarios
     ifstream archivo("usuarios.txt");
     string linea;
-
+    
+    // lee el archivo línea por línea
     while (getline(archivo, linea)) {
-        size_t coma = linea.find(',');
-        if (coma != string::npos) {
-            string u = linea.substr(0, coma);
-            string c = linea.substr(coma + 1);
-            if (usuario == u && clave == c) {
-                usuarioActivo = usuario;
-                return true;
+        // busca la coma que separa usuario y contraseña
+        size_t pos = linea.find(',');
+        if (pos != string::npos) {
+            // extrae usuario y contraseña
+            string usuarioArchivo = linea.substr(0, pos);
+            string claveArchivo = linea.substr(pos + 1);
+            
+            // compara con las credenciales proporcionadas
+            if (usuario == usuarioArchivo && clave == claveArchivo) {
+                archivo.close();
+                usuarioActivo = usuario; // Asignar el usuario activo
+                return true;  // credenciales válidas
             }
         }
     }
+    
+    // cierra el archivo y retorna falso si no encontró coincidencias
+    archivo.close();
     return false;
 }
 
+// registra un nuevo usuario en el sistema
+// recibe el nombre de usuario y la contraseña
+// guarda los datos en el archivo de usuarios
 void registrarUsuario(const string& usuario, const string& clave) {
+    // abre el archivo en modo append (agrega al final)
     ofstream archivo("usuarios.txt", ios::app);
+    
+    // escribe el nuevo usuario y contraseña
     archivo << usuario << "," << clave << endl;
+    
+    // cierra el archivo
+    archivo.close();
 }
 
+// registra una nueva nota para el usuario activo
+// recibe el nombre de usuario activo
+// no devuelve ningún valor
 void registrarNota(const std::string& usuarioActivo) {
+    // verifica si hay un usuario activo
     if (usuarioActivo.empty()) return;
 
     string cursos[] = {"DESARROLLO FRONT END", 
@@ -134,41 +179,49 @@ void registrarNota(const std::string& usuarioActivo) {
                      "ALGORITMOS Y PROGRAMACION DE COMPUTADORAS", 
                      "INGLES"};
     
+    // arreglo de colores para los cursos
     string colores[] = {CYAN, MAGENTA, GREEN, BLUE, YELLOW};
     
-    // Mostrar lista de cursos con formato y colores
+    // limpia la pantalla y muestra el encabezado
     limpiarPantalla();
     mostrarEncabezado("REGISTRAR NOTA");
     
+    // muestra el nombre del usuario actual
     cout << " " << BOLD << "USUARIO: " << RESET << GREEN << usuarioActivo << RESET << "\n\n";
     cout << " " << BOLD << "SELECCIONE EL CURSO:" << RESET << "\n";
     cout << " " << string(60, '=') << "\n";
     
+    // muestra la lista de cursos con colores
     for (int i = 0; i < 5; ++i) {
         cout << " " << BOLD << colores[i] << "[" << (i+1) << "] " << RESET 
              << BOLD << colores[i] << cursos[i] << RESET << "\n";
     }
     cout << " " << string(60, '=') << "\n\n";
 
+    // pide al usuario que seleccione un curso
     int opcionCurso;
     cout << " " << BOLD << "Seleccione el curso (1-5): " << RESET;
     cin >> opcionCurso;
     cin.ignore();
 
+    // valida que la opción sea correcta
     if (opcionCurso < 1 || opcionCurso > 5) {
-        cout << "\n" << RED << "Error: Curso inválido.\n" << RESET;
+        cout << "\n" << RED << "Error: curso inválido.\n" << RESET;
         cout << "\n" << YELLOW << "Presione una tecla para continuar..." << RESET;
         _getch();
         return;
     }
 
+    // muestra el curso seleccionado
     cout << "\n" << BOLD << "CURSO SELECCIONADO: " << RESET << GREEN << cursos[opcionCurso - 1] << RESET << "\n\n";
     
+    // pide el indicador de logro al usuario
     int indicador;
     cout << " " << BOLD << "Indicador de Logro (1-5): " << RESET;
     cin >> indicador;
     cin.ignore();
 
+    // valida que el indicador esté en el rango correcto
     if (indicador < 1 || indicador > 5) {
         cout << "\n" << RED << "Error: Indicador de logro no válido.\n" << RESET;
         cout << "\n" << YELLOW << "Presione una tecla para continuar..." << RESET;
@@ -176,8 +229,12 @@ void registrarNota(const std::string& usuarioActivo) {
         return;
     }
 
+    // abre el archivo de notas en modo append (agregar al final)
     std::ofstream archivo(usuarioActivo + "_notas.txt", std::ios::app);
 
+    // variables para el bucle de ingreso de notas
+    // nota: almacena temporalmente cada nota ingresada
+    // contador: lleva la cuenta de las notas ingresadas (máximo 5)
     std::string nota;
     int contador = 0;
 
@@ -200,90 +257,130 @@ void registrarNota(const std::string& usuarioActivo) {
 
 
 
+// exporta todas las notas del usuario a un archivo de texto
+// no recibe parámetros
+// genera un archivo con las notas del usuario en formato legible
 void exportarNotas() {
+    // limpia la pantalla para mostrar la interfaz de exportación
     limpiarPantalla();
+    // muestra el encabezado de la sección
     mostrarEncabezado("EXPORTAR NOTAS");
     
+    // crea un nombre de archivo único usando el nombre de usuario y la hora actual
+    // formato: notas_usuario_timestamp.txt
     string nombreArchivo = "notas_" + usuarioActivo + "_" + to_string(time(0)) + ".txt";
+    
+    // intenta abrir el archivo para escritura
     ofstream archivoSalida(nombreArchivo);
     
+    // verifica si se pudo abrir el archivo correctamente
     if (!archivoSalida) {
+        // muestra mensaje de error en rojo
         cout << "\n" << RED << "Error al crear el archivo de exportación.\n" << RESET;
+        // indica al usuario cómo continuar
         cout << "\n" << YELLOW << "Presione cualquier tecla para continuar..." << RESET;
+        // espera a que el usuario presione una tecla
         _getch();
+        // sale de la función si hay error
         return;
     }
     
-    // Escribir encabezado
+    // escribe el encabezado del reporte con formato
     archivoSalida << "========================================\n";
+    // muestra el título del reporte con el nombre del usuario
     archivoSalida << "         REPORTE DE NOTAS - " << usuarioActivo << "         \n";
+    // agrega la fecha y hora de generación del reporte
     archivoSalida << "         " << __DATE__ << " - " << __TIME__ << "         \n";
     archivoSalida << "========================================\n\n";
     
+    // define un arreglo con los nombres de los cursos disponibles
     string cursos[] = {"DESARROLLO FRONT END", 
                      "BASE DE DATOS", 
                      "DESARROLLO DE APLICACIONES DE ESCRITORIO", 
                      "ALGORITMOS Y PROGRAMACION DE COMPUTADORAS", 
                      "INGLES"};
     
+    // bandera para verificar si hay al menos una nota en algún curso
     bool hayNotas = false;
     
-    // Para cada curso
+    // recorre cada uno de los 5 cursos definidos
     for (int curso = 0; curso < 5; curso++) {
+        // abre el archivo de notas del usuario para lectura
         ifstream archivoEntrada(usuarioActivo + "_notas.txt");
         string linea;
+        // bandera para verificar si el curso actual tiene notas
         bool tieneNotas = false;
         
+        // escribe el nombre del curso actual en el reporte
         archivoSalida << "CURSO: " << cursos[curso] << "\n";
+        // agrega una línea divisoria
         archivoSalida << string(50, '-') << "\n";
         
-        // Buscar notas para este curso
+        // lee línea por línea el archivo de notas
         while (getline(archivoEntrada, linea)) {
+            // verifica si la línea actual pertenece al curso que se está procesando
             if (linea.find(cursos[curso]) != string::npos) {
+                // si encuentra una nota para este curso, la escribe en el reporte
                 archivoSalida << "- " << linea << "\n";
+                // marca que este curso tiene al menos una nota
                 tieneNotas = true;
+                // marca que hay al menos una nota en general
                 hayNotas = true;
             }
         }
         
+        // si no se encontraron notas para este curso
         if (!tieneNotas) {
             archivoSalida << "No hay notas registradas para este curso.\n";
         }
         
+        // agrega una línea en blanco para separar los cursos
         archivoSalida << "\n";
+        // cierra el archivo de entrada después de procesar el curso actual
         archivoEntrada.close();
     }
     
-    // Calcular promedios
+    // sección de resumen de promedios
     archivoSalida << "\n" << string(50, '=') << "\n";
     archivoSalida << "RESUMEN DE PROMEDIOS\n";
     archivoSalida << string(50, '=') << "\n\n";
     
+    // recorre cada curso para calcular promedios
     for (int curso = 0; curso < 5; curso++) {
+        // abre nuevamente el archivo de notas para calcular promedios
         ifstream archivoEntrada(usuarioActivo + "_notas.txt");
         string linea;
-        int totalNotas = 0;
-        double sumaNotas = 0.0;
+        int totalNotas = 0;        // contador de notas válidas
+        double sumaNotas = 0.0;    // acumulador de las notas
         
-        // Buscar notas para este curso
+        // busca y procesa las notas para el curso actual
         while (getline(archivoEntrada, linea)) {
+            // verifica si la línea pertenece al curso actual
             if (linea.find(cursos[curso]) != string::npos) {
+                // encuentra la posición del último ": " para extraer la nota
                 size_t posNota = linea.rfind(": ");
                 if (posNota != string::npos) {
                     try {
+                        // convierte el texto después de ": " a número
                         double nota = stod(linea.substr(posNota + 2));
+                        // suma la nota al acumulador
                         sumaNotas += nota;
+                        // incrementa el contador de notas
                         totalNotas++;
                     } catch (...) {
-                        // Ignorar líneas con formato incorrecto
+                        // manejo de error silencioso para líneas con formato incorrecto
+                        // esto evita que el programa falle si hay un error de formato
                     }
                 }
             }
         }
+        // cierra el archivo después de procesar las notas del curso
         archivoEntrada.close();
         
+        // escribe el nombre del curso alineado a la izquierda con un ancho fijo
         archivoSalida << left << setw(45) << cursos[curso] << "\t";
         
+        // si hay notas para este curso, calcula y muestra el promedio
         if (totalNotas > 0) {
             double promedio = sumaNotas / totalNotas;
             archivoSalida << "Promedio: " << fixed << setprecision(2) << promedio << "  ";
@@ -307,7 +404,11 @@ void exportarNotas() {
     _getch();
 }
 
+// muestra los promedios de notas por curso para el usuario activo
+// no recibe parámetros
+// muestra los resultados directamente en la consola
 void verPromedios() {
+    // limpia la pantalla y muestra el encabezado
     limpiarPantalla();
     mostrarEncabezado("PROMEDIOS DE NOTAS");
     
@@ -379,77 +480,96 @@ void verPromedios() {
     if (!hayNotas) {
         cout << "\n" << YELLOW << "No hay notas registradas para mostrar promedios." << RESET << "\n";
     }
-    
-    cout << "\n" << YELLOW << "Presione cualquier tecla para continuar..." << RESET;
-    _getch();
-}
-
+};
 void mostrarNotas() {
+    // arreglo con los nombres de los cursos
     string cursos[] = {"DESARROLLO FRONT END", 
                      "BASE DE DATOS", 
                      "DESARROLLO DE APLICACIONES DE ESCRITORIO", 
                      "ALGORITMOS Y PROGRAMACION DE COMPUTADORAS", 
                      "INGLES"};
     
-    string colores[] = {CYAN, MAGENTA, GREEN, BLUE, YELLOW};
-    
-    // Mostrar lista de cursos con formato y colores
+    // limpia la pantalla y muestra el encabezado
     limpiarPantalla();
-    mostrarEncabezado("VER NOTAS");
+    mostrarEncabezado("MIS NOTAS");
     
+    // muestra el nombre del usuario actual
     cout << " " << BOLD << "USUARIO: " << RESET << GREEN << usuarioActivo << RESET << "\n\n";
     cout << " " << BOLD << "SELECCIONE EL CURSO:" << RESET << "\n";
     cout << " " << string(60, '=') << "\n";
     
+    // arreglo con los colores para cada curso
+    string colores[] = {CYAN, MAGENTA, GREEN, BLUE, YELLOW};
+    
+    // muestra la lista de cursos numerados
     for (int i = 0; i < 5; ++i) {
         cout << " " << BOLD << colores[i] << "[" << (i+1) << "] " << RESET 
              << BOLD << colores[i] << cursos[i] << RESET << "\n";
     }
     cout << " " << string(60, '=') << "\n\n";
 
+    // pide al usuario que seleccione un curso
     int opcionCurso;
-    cout << " " << BOLD << "Seleccione el curso (1-5): " << RESET;
+    cout << " " << BOLD << "seleccione el curso (1-5): " << RESET;
     cin >> opcionCurso;
     cin.ignore();
 
+    // valida que la opción sea correcta
     if (opcionCurso < 1 || opcionCurso > 5) {
-        cout << "\n" << RED << "Error: Curso inválido.\n" << RESET;
-        cout << "\n" << YELLOW << "Presione una tecla para continuar..." << RESET;
+        cout << "\n" << RED << "error: curso inválido.\n" << RESET;
+        cout << "\n" << YELLOW << "presione una tecla para continuar..." << RESET;
         _getch();
         return;
     }
 
+    // obtiene el curso y color seleccionados
     string cursoSeleccionado = cursos[opcionCurso - 1];
     string colorCurso = colores[opcionCurso - 1];
 
+    // abre el archivo de notas del usuario
     ifstream archivo(usuarioActivo + "_notas.txt");
     string linea;
 
+    // limpia la pantalla y muestra el encabezado con el curso seleccionado
     limpiarPantalla();
     mostrarEncabezado("NOTAS DE " + cursoSeleccionado);
     
-    cout << "\n " << BOLD << "USUARIO: " << RESET << GREEN << usuarioActivo << RESET << "\n";
-    cout << " " << BOLD << "CURSO: " << RESET << BOLD << colorCurso << cursoSeleccionado << RESET << "\n\n";
+    // muestra la información del usuario y curso
+    cout << "\n " << BOLD << "usuario: " << RESET << GREEN << usuarioActivo << RESET << "\n";
+    cout << " " << BOLD << "curso: " << RESET << BOLD << colorCurso << cursoSeleccionado << RESET << "\n\n";
     cout << " " << string(70, '=') << "\n";
 
+    // busca y muestra las notas del curso seleccionado
     bool hayNotas = false;
     while (getline(archivo, linea)) {
+        // si la línea contiene el nombre del curso
         if (linea.find(cursoSeleccionado) != string::npos) {
+            // muestra la nota con el color del curso
             cout << " " << BOLD << colorCurso << "• " << RESET << linea << endl;
             hayNotas = true;
         }
     }
 
+    // muestra mensaje si no hay notas
     if (!hayNotas) {
-        cout << " " << YELLOW << "No hay notas registradas para este curso." << RESET << "\n";
+        cout << " " << YELLOW << "no hay notas registradas para este curso." << RESET << "\n";
     }
 
     cout << "\n " << string(70, '=') << "\n\n";
-    cout << " " << YELLOW << "Presione cualquier tecla para continuar..." << RESET;
+    cout << " " << YELLOW << "presione cualquier tecla para continuar..." << RESET;
     _getch();
 }
-
+// interactúa con el usuario para seleccionar y modificar una nota
 void editarNota() {
+    // limpia la pantalla y muestra el encabezado
+    limpiarPantalla();
+    mostrarEncabezado("EDITAR NOTA");
+    
+    cout << " " << BOLD << "USUARIO: " << RESET << GREEN << usuarioActivo << RESET << "\n\n";
+    cout << " " << BOLD << "SELECCIONE EL CURSO:" << RESET << "\n";
+    cout << " " << string(60, '=') << "\n";
+    
+    // Mostrar lista de cursos con formato y colores
     string cursos[] = {"DESARROLLO FRONT END", 
                      "BASE DE DATOS", 
                      "DESARROLLO DE APLICACIONES DE ESCRITORIO", 
@@ -457,14 +577,6 @@ void editarNota() {
                      "INGLES"};
     
     string colores[] = {CYAN, MAGENTA, GREEN, BLUE, YELLOW};
-    
-    // Mostrar lista de cursos con formato y colores
-    limpiarPantalla();
-    mostrarEncabezado("EDITAR NOTA");
-    
-    cout << " " << BOLD << "USUARIO: " << RESET << GREEN << usuarioActivo << RESET << "\n\n";
-    cout << " " << BOLD << "SELECCIONE EL CURSO:" << RESET << "\n";
-    cout << " " << string(60, '=') << "\n";
     
     for (int i = 0; i < 5; ++i) {
         cout << " " << BOLD << colores[i] << "[" << (i+1) << "] " << RESET 
@@ -637,24 +749,9 @@ void editarNota() {
     _getch();
 }
 
-// Variables globales para el juego
-int mejorPuntaje = 0;
-string mejorJugador = "";
-
-// Función para mostrar una barra de progreso
-void mostrarBarraProgreso(int actual, int total, int ancho = 30) {
-    float progreso = (float)actual / total;
-    int pos = (int)(ancho * progreso);
-    
-    cout << "\n " << BOLD << "Progreso: [" << RESET;
-    for (int i = 0; i < ancho; ++i) {
-        if (i < pos) cout << GREEN << "█" << RESET;
-        else cout << " ";
-    }
-    cout << BOLD << "] " << (int)(progreso * 100.0) << "%" << RESET << "\n\n";
-}
-
-// Función para mostrar un mensaje con un marco decorativo
+// muestra un mensaje con un marco decorativo
+// recibe el mensaje y el color del marco como parámetros
+// muestra el mensaje en la consola
 void mostrarMensaje(const string& mensaje, const string& color = "") {
     string linea(mensaje.length() + 4, '=');
     cout << "\n " << BOLD << color << " ╔" << linea << "╗" << RESET << "\n";
@@ -662,9 +759,34 @@ void mostrarMensaje(const string& mensaje, const string& color = "") {
     cout << " " << BOLD << color << " ╚" << linea << "╝" << RESET << "\n\n";
 }
 
+// muestra una barra de progreso en la consola
+// recibe el progreso actual y el total
+// muestra una barra de progreso en la consola
+void mostrarBarraProgreso(int actual, int total) {
+    const int anchoBarra = 50;
+    float progreso = (float)actual / total;
+    int posicion = (int)(anchoBarra * progreso);
+    
+    cout << "\n " << BOLD << "[ " << RESET;
+    
+    // dibuja la barra de progreso
+    for (int i = 0; i < anchoBarra; i++) {
+        if (i < posicion) cout << BOLD << GREEN << "=" << RESET;
+        else if (i == posicion) cout << BOLD << ">>" << RESET;
+        else cout << " ";
+    }
+    
+    // muestra el porcentaje
+    cout << BOLD << " ] " << (int)(progreso * 100.0) << "%\n\n" << RESET;
+}
+
+// inicia un juego de preguntas y respuestas
+// no recibe parámetros
+// muestra preguntas y evalúa las respuestas del usuario
 void juegoPreguntas() {
+    // limpia la pantalla y muestra el encabezado
     limpiarPantalla();
-    mostrarEncabezado("🎮 JUEGO DE PREGUNTAS DE PROGRAMACIÓN 🎮");
+    mostrarEncabezado("JUEGO DE PREGUNTAS");
 
     // Definir preguntas y respuestas
     struct Pregunta {
@@ -788,6 +910,7 @@ void juegoPreguntas() {
              "2. Se ejecuta una vez",
              "La recursividad implica que una función se invoque a sí misma."},
         
+            // pregunta sobre sobrecarga de operadores
             {"¿Qué operador se sobrecarga para acceso tipo array?", 1,
              "1. []",
              "2. ()",
@@ -798,25 +921,29 @@ void juegoPreguntas() {
              "2. override",
              "final evita que las clases hijas sobrescriban una función virtual."},
         
-            {"¿Qué es el puntero 'this'?", 1,
-             "1. Apunta al objeto actual",
-             "2. Apunta a la clase base",
+            // pregunta sobre punteros
+            {"¿qué es el puntero 'this'?", 1,
+             "1. apunta al objeto actual",
+             "2. apunta a la clase base",
              "'this' representa al objeto que llama un método."},
         
-            {"¿Qué permite la sobrecarga de constructores?", 1,
-             "1. Varios constructores con diferentes parámetros",
-             "2. Constructores duplicados en varias clases",
-             "Permite crear objetos con diferentes formas de inicialización."},
+            // pregunta sobre constructores
+            {"¿qué permite la sobrecarga de constructores?", 1,
+             "1. varios constructores con diferentes parámetros",
+             "2. constructores duplicados en varias clases",
+             "permite crear objetos con diferentes formas de inicialización."},
         
-            {"¿Para qué se usa 'friend' en C++?", 1,
-             "1. Dar acceso a funciones externas a miembros privados",
-             "2. Evitar el uso de punteros",
-             "Permite que funciones o clases accedan a miembros privados."},
+            // pregunta sobre encapsulamiento
+            {"¿para qué se usa 'friend' en c++?", 1,
+             "1. dar acceso a funciones externas a miembros privados",
+             "2. evitar el uso de punteros",
+             "permite que funciones o clases accedan a miembros privados."},
         
-            {"¿Qué tipo de herencia permite heredar de varias clases?", 1,
-             "1. Herencia múltiple",
-             "2. Herencia virtual",
-             "La herencia múltiple combina miembros de varias clases base."},
+            // pregunta sobre herencia
+            {"¿qué tipo de herencia permite heredar de varias clases?", 1,
+             "1. herencia múltiple",
+             "2. herencia virtual",
+             "la herencia múltiple combina miembros de varias clases base."},
         
             {"¿Dónde deben definirse las plantillas?", 1,
              "1. En el archivo de cabecera (.h)",
@@ -967,9 +1094,10 @@ void juegoPreguntas() {
             }
         }
         time(&fin);
+        // suma el tiempo que tomó responder
         tiempoRespuesta += difftime(fin, inicio);
 
-        // Verificar respuesta
+        // limpia la pantalla y muestra el encabezado según la respuesta
         limpiarPantalla();
         mostrarEncabezado(respuesta == p.correcta ? "RESPUESTA CORRECTA" : "RESPUESTA INCORRECTA");
         
@@ -979,11 +1107,13 @@ void juegoPreguntas() {
         cout << " " << BOLD << (respuesta == p.correcta ? GREEN : RED) << 
              (respuesta == p.correcta ? "Tu respuesta fue correcta!" : "Tu respuesta fue incorrecta") << RESET << "\n";
         
+        // muestra la respuesta correcta
         cout << "\n " << BOLD << "Respuesta correcta: " << RESET << "[" << p.correcta << "] " << 
              (p.correcta == 1 ? p.opcion1 : p.opcion2) << "\n";
         
         cout << "\n " << BOLD << "Explicación: " << RESET << p.explicacion << "\n\n";
         
+        // actualiza y muestra el contador de aciertos
         if (respuesta == p.correcta) {
             aciertos++;
             cout << " " << GREEN << "¡Bien hecho! " << RESET << "Llevas " << BOLD << aciertos << " aciertos" << RESET << "\n";
@@ -991,7 +1121,7 @@ void juegoPreguntas() {
             cout << " " << RED << "¡No te rindas! " << RESET << "Llevas " << BOLD << aciertos << " aciertos" << RESET << "\n";
         }
 
-        // Mostrar progreso
+        // muestra la barra de progreso del juego
         mostrarBarraProgreso(i + 1, preguntasActuales.size());
         
         if (i < preguntasActuales.size() - 1) {
@@ -1109,27 +1239,36 @@ bool cambiarContrasena(const string& usuario) {
             }
         }
         
-        // Verificar la contraseña actual
+        // abre el archivo de usuarios para verificar la contraseña
         ifstream archivo("usuarios.txt");
         string linea;
         bool encontrado = false;
         
+        // recorre cada línea del archivo de usuarios
         while (getline(archivo, linea)) {
+            // busca la posición de la coma que separa usuario y contraseña
             size_t pos = linea.find(',');
+            
+            // verifica si se encontró la coma y si el usuario coincide
             if (pos != string::npos && linea.substr(0, pos) == usuario) {
                 encontrado = true;
+                // obtiene la contraseña guardada (después de la coma)
                 string claveGuardada = linea.substr(pos + 1);
+                
+                // compara la contraseña ingresada con la guardada
                 if (viejaClave == claveGuardada) {
                     claveCorrecta = true;
                     break;
                 }
             }
         }
+        // cierra el archivo después de usarlo
         archivo.close();
         
+        // muestra mensaje si la contraseña es incorrecta
         if (!claveCorrecta) {
-            cout << "\n\n" << RED << "Contraseña incorrecta. Intente de nuevo." << RESET << endl;
-            cout << "\n" << YELLOW << "Presione cualquier tecla para continuar..." << RESET;
+            cout << "\n\n" << RED << "contraseña incorrecta. intente de nuevo." << RESET << endl;
+            cout << "\n" << YELLOW << "presione cualquier tecla para continuar..." << RESET;
             _getch();
         }
     } while (!claveCorrecta);
@@ -1139,31 +1278,39 @@ bool cambiarContrasena(const string& usuario) {
     do {
         limpiarPantalla();
         mostrarEncabezado("CAMBIAR CONTRASEÑA");
-        cout << " " << BOLD << "Usuario: " << RESET << usuario << "\n";
-        cout << " " << BOLD << "Contraseña actual: " << string(viejaClave.length(), '*') << "\n\n";
+        // muestra la información del usuario
+        cout << " " << BOLD << "usuario: " << RESET << usuario << "\n";
+        // muestra la contraseña actual oculta con asteriscos
+        cout << " " << BOLD << "contraseña actual: " << string(viejaClave.length(), '*') << "\n\n";
         
-        cout << " " << BOLD << "Ingrese la nueva contraseña: " << RESET;
+        // pide la nueva contraseña
+        cout << " " << BOLD << "ingrese la nueva contraseña: " << RESET;
         nuevaClave = "";
         char c;
+        // lee la contraseña carácter por carácter
         while ((c = _getch()) != '\r') {
+            // maneja la tecla de retroceso
             if (c == '\b' && !nuevaClave.empty()) {
-                cout << "\b \b";
-                nuevaClave.pop_back();
+                cout << "\b \b";  // borra el último asterisco
+                nuevaClave.pop_back();  // elimina el último carácter
             } else if (c != '\b') {
-                cout << '*';
-                nuevaClave += c;
+                cout << '*';  // muestra un asterisco por cada carácter
+                nuevaClave += c;  // agrega el carácter a la contraseña
             }
         }
         
-        cout << "\n " << BOLD << "Confirme la nueva contraseña: " << RESET;
+        // pide confirmación de la nueva contraseña
+        cout << "\n " << BOLD << "confirme la nueva contraseña: " << RESET;
         confirmarClave = "";
+        // lee la confirmación carácter por carácter
         while ((c = _getch()) != '\r') {
+            // maneja la tecla de retroceso
             if (c == '\b' && !confirmarClave.empty()) {
-                cout << "\b \b";
-                confirmarClave.pop_back();
+                cout << "\b \b";  // borra el último asterisco
+                confirmarClave.pop_back();  // elimina el último carácter
             } else if (c != '\b') {
-                cout << '*';
-                confirmarClave += c;
+                cout << '*';  // muestra un asterisco por cada carácter
+                confirmarClave += c;  // agrega el carácter a la confirmación
             }
         }
         
@@ -1265,23 +1412,35 @@ void menuUsuario() {
                     mostrarEncabezado("VER NOTAS");
                     mostrarNotas();
                     break;
+                
+                // opción 3: editar una nota existente
                 case 3:
                     editarNota();
                     break;
+                
+                // opción 4: ver promedios de notas
                 case 4:
                     verPromedios();
                     break;
+                
+                // opción 5: exportar notas a archivo
                 case 5:
                     exportarNotas();
                     break;
+                
+                // opción 6: cambiar contraseña del usuario
                 case 6:
                     cambiarContrasena(usuarioActivo);
                     break;
+                
+                // opción 7: jugar al juego de preguntas
                 case 7:
                     juegoPreguntas();
                     break;
+                
+                // opción 8: cerrar sesión
                 case 8:
-                    cout << "\n" << YELLOW << "Cerrando sesión..." << RESET << "\n";
+                    cout << "\n" << YELLOW << "cerrando sesión..." << RESET << "\n";
                     Sleep(1000);
                     return;
             }
@@ -1319,9 +1478,13 @@ void menuLogin() {
         cout << " \n";
         cout << " \n";
         // Mostrar opciones del menú
-        mostrarOpcionLogin("Registrarse", 1, opcion == 1);
-        mostrarOpcionLogin("Iniciar Sesión", 2, opcion == 2);
+        mostrarOpcionLogin("Iniciar Sesión", 1, opcion == 1);
+        mostrarOpcionLogin("Registrarse", 2, opcion == 2);
         mostrarOpcionLogin("Salir", 3, opcion == 3);
+        cout << " \n";
+        cout << " \n";
+        cout << "*usuario: admin    clave: 1234    tambien en registrarse*";
+        cout << " \n";
         
         cout << "\n" << YELLOW << " ↑/↓: Navegar   ENTER: Seleccionar   ESC: Salir" << RESET;
 
@@ -1346,6 +1509,25 @@ void menuLogin() {
             
             switch (opcion) {
                 case 1: { // Registrarse
+                    mostrarEncabezado("INICIAR SESIÓN");
+                    cout << "\n " << BOLD << "Usuario: " << RESET;
+                    cin >> usuario;
+                    cout << " " << BOLD << "Clave: " << RESET;
+                    cin >> clave;
+                    
+                    if (verificarLogin(usuario, clave)) {
+                        cout << "\n" << GREEN << "Iniciando sesión...\n" << RESET;
+                        Sleep(1000);
+                        menuUsuario();
+                    } else {
+                        cout << "\n" << RED << "Usuario o clave incorrectos.\n" << RESET;
+                        cout << "\n" << YELLOW << "Presione una tecla para continuar..." << RESET;
+                        _getch();
+                    }
+                    break;
+                    
+                }
+                case 2: { // Iniciar sesión
                     mostrarEncabezado("REGISTRO DE USUARIO");
                     cout << "\n " << BOLD << "Nuevo usuario: " << RESET;
                     cin >> usuario;
@@ -1355,24 +1537,6 @@ void menuLogin() {
                     cout << "\n" << GREEN << "Usuario registrado correctamente.\n" << RESET;
                     cout << "\n" << YELLOW << "Presione una tecla para continuar..." << RESET;
                     _getch();
-                    break;
-                }
-                case 2: { // Iniciar sesión
-                    mostrarEncabezado("INICIAR SESIÓN");
-                    cout << "\n " << BOLD << "Usuario: " << RESET;
-                    cin >> usuario;
-                    cout << " " << BOLD << "Clave: " << RESET;
-                    cin >> clave;
-                    
-                    if (verificarLogin(usuario, clave)) {
-                        cout << "\n" << GREEN << "✓ Iniciando sesión...\n" << RESET;
-                        Sleep(1000);
-                        menuUsuario();
-                    } else {
-                        cout << "\n" << RED << "Usuario o clave incorrectos.\n" << RESET;
-                        cout << "\n" << YELLOW << "Presione una tecla para continuar..." << RESET;
-                        _getch();
-                    }
                     break;
                 }
                 case 3: // Salir
